@@ -27,8 +27,9 @@ class PlayerStrat:
         @returns    (x, y) A tuple of integer corresponding to a valid
                     and free tile on the board.
         """
-        return move
+        
         raise NotImplementedError
+        
 
 class Node(object):
     """
@@ -52,15 +53,17 @@ class Node(object):
         self.children.append(child)
 
 
-#class Random(PlayerStrat):
+class Random(PlayerStrat):
 # Build here the class for a random player
-
+    def start(self):
+        return random.choice(logic.get_possible_moves(self.root_state))
+        
 
 # class MiniMax(PlayerStrat):
 #     # Build here the class implementing the MiniMax strategy
 
 str2strat: dict[str, PlayerStrat] = {
-        "human": None
-        #"random": Random,
+        "human": None,
+        "random": Random
         # "minimax": MiniMax,
 }
