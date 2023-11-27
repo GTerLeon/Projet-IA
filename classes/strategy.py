@@ -57,44 +57,41 @@ class Random(PlayerStrat):
 # Build here the class for a random player
     def start(self):
         result = random.choice(logic.get_possible_moves(self.root_state))
-        #print("Random ")
-        #print(result)
         return result
-        
+    
 class MiniMax(PlayerStrat):
-# Build here the class implementing the MiniMax strategy
-    def minimax_decision(self, state):
+# Build here the class implementing the MiniMax strategy        
+    def minimax_decision(self, state, player):
         actions = logic.get_possible_moves(state)
-        result = max(actions, key=lambda a: self.max_value(self.result(state, a)))
-        #print(result)
+        result = max(actions, key=lambda a: self.min_value(self.result(state, a), player))
+        # print(f"Print de state {result}")
         return result
 
-    def max_value(self, state, depth=3):
-        if logic.is_game_over(self.player, state) or depth == 0:
-            return self.utility(state)
+    def max_value(self, state, player):
+        if logic.is_game_over(player, state):
+            # print(f"Dans max_value, print {self.utility(state)}")
+            return self.utility(state, player)
         v = -math.inf
         for a in logic.get_possible_moves(state):
-            v = max(v, self.min_value(self.result(state, a)), depth - 1)
-        #print(f"Max_value Profondeur : {depth} a la valeur: {a}")
+            v = max(v, self.min_value(self.result(state, a), player))
+        # print(f"MAX_VALUE Je maximise le joueur {player}")
         return v
 
-    def min_value(self, state, depth=3):
-        if logic.is_game_over(self.player, state) or depth == 0:
-            return self.utility(state)
+    def min_value(self, state, player):
+        if logic.is_game_over(player, state):
+            return self.utility(state, player)
         v = math.inf
         for a in logic.get_possible_moves(state):
-            v = min(v, self.max_value(self.result(state, a)), depth -1 )
-        #print(f"Min_value Profondeur : {depth} a la valeur: {v}")
+            v = min(v, self.max_value(self.result(state, a), player))
+        # print(f"MIN_VALUE je minimise le joueur {player}")
         return v
 
-    def utility(self, state):
-        winner = logic.is_game_over(self.player, state)
-        if winner == self.player:
+    def utility(self, state, player):
+        winner = logic.is_game_over(player, state)
+        if winner == player:
             return 1
-        elif winner is not None:
-            return -1
         else:
-            return 0
+            return -1
 
     def result(self, state, action):
         new_state = copy.deepcopy(state)
@@ -102,42 +99,41 @@ class MiniMax(PlayerStrat):
         return new_state
     
     def start(self):
-        return self.minimax_decision(self.root_state)
+        return self.minimax_decision(self.root_state, self.player)
     
-class MiniMax2(PlayerStrat):
-# Build here the class implementing the MiniMax strategy
-    def minimax_decision(self, state):
+class MiniMax(PlayerStrat):
+# Build here the class implementing the MiniMax strategy        
+    def minimax_decision(self, state, player):
         actions = logic.get_possible_moves(state)
-        result = max(actions, key=lambda a: self.max_value(self.result(state, a)))
-        #print(result)
+        result = max(actions, key=lambda a: self.min_value(self.result(state, a), player))
+        # print(f"Print de state {result}")
         return result
 
-    def max_value(self, state, depth=3):
-        if logic.is_game_over(self.player, state) or depth == 0:
-            return self.utility(state)
+    def max_value(self, state, player):
+        if logic.is_game_over(player, state):
+            # print(f"Dans max_value, print {self.utility(state)}")
+            return self.utility(state, player)
         v = -math.inf
         for a in logic.get_possible_moves(state):
-            v = max(v, self.min_value(self.result(state, a)), depth - 1)
-        #print(f"Max_value Profondeur : {depth} a la valeur: {a}")
+            v = max(v, self.min_value(self.result(state, a), player))
+        # print(f"MAX_VALUE Je maximise le joueur {player}")
         return v
 
-    def min_value(self, state, depth=3):
-        if logic.is_game_over(self.player, state) or depth == 0:
-            return self.utility(state)
+    def min_value(self, state, player):
+        if logic.is_game_over(player, state):
+            return self.utility(state, player)
         v = math.inf
         for a in logic.get_possible_moves(state):
-            v = min(v, self.max_value(self.result(state, a)), depth -1 )
-        #print(f"Min_value Profondeur : {depth} a la valeur: {v}")
+            v = min(v, self.max_value(self.result(state, a), player))
+        # print(f"MIN_VALUE je minimise le joueur {player}")
         return v
 
-    def utility(self, state):
-        winner = logic.is_game_over(self.player, state)
-        if winner == self.player:
+    def utility(self, state, player):
+        winner = logic.is_game_over(player, state)
+        if winner == player:
             return 1
-        elif winner is not None:
-            return -1
         else:
-            return 0
+            return -1
 
     def result(self, state, action):
         new_state = copy.deepcopy(state)
@@ -145,12 +141,60 @@ class MiniMax2(PlayerStrat):
         return new_state
     
     def start(self):
-        return self.minimax_decision(self.root_state)
+        return self.minimax_decision(self.root_state, self.player)
+    
+class test(PlayerStrat):
+# Build here the class implementing the MiniMax strategy  
+    def minimax_decision(self, node):
+        if self.player == logic.WHITE_PLAYER:
+            value, move = self.min_value(node)
+        else:
+            value, move = self.min_value(node)
+        return value, move
 
+    def max_value(self, node):
+        if logic.is_game_over(self.player, node.state):
+            return self.utility(node.state, self.player), None
+        v = -math.inf
+        best_move = None
+        for action in node.untried_moves:
+            child_node = Node(self.result(node.state, action))
+            v2, _ = self.min_value(child_node)
+            if v2 > v:
+                v, best_move = v2, action
+        return v, best_move
+
+    def min_value(self, node):
+        if logic.is_game_over(self.player, node.state):
+            return self.utility(node.state, self.player), None
+        v = v = math.inf
+        best_move = None
+        for action in node.untried_moves:
+            child_node = Node(self.result(node.state, action))
+            v2, _ = self.max_value(child_node)
+            if v2 < v:
+                v, best_move = v2, action
+        return v, best_move
+
+    def utility(self, state, player):
+        winner = logic.is_game_over(player, state)
+        if winner == player:
+            return 1
+        else:
+            return -1
+
+    def result(self, state, action):
+        new_state = copy.deepcopy(state)
+        new_state[action] = self.player
+        return new_state
+
+    def start(self):
+        _, best_move = self.minimax_decision(Node(self.root_state))
+        return best_move
 
 str2strat: dict[str, PlayerStrat] = {
         "human": None,
         "random": Random,
         "minimax": MiniMax,
-        "test": MiniMax2
+        "test": test
 }
