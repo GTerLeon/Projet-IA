@@ -22,13 +22,13 @@ def get_player_tiles(board: np.ndarray, player: int) -> list:
     (x, y) = np.where(board == player)
     return list(zip(x, y))
 
-
 def is_game_over(player: int, board: np.ndarray) -> Optional[int]:
     """
     @return   The winning player:  1 or 2 (or None if the game is
               over by lack of playable position!)
     """
     get_border = (lambda i: (i, 0)) if player == BLACK_PLAYER else (lambda i: (0, i))
+    # print(f"Pour joueur {player} recupere le resultat de border {get_border}")
     for i in range(board.shape[0]):
         path = traverse(get_border(i), player, board, {})
         if path:
