@@ -61,37 +61,74 @@ class Random(PlayerStrat):
     
 class MiniMax(PlayerStrat):
 # Build here the class implementing the MiniMax strategy  
+    # def minimax_decision(self, node):
+    #     if self.player == logic.WHITE_PLAYER:
+    #         value, move = self.max_value(node, logic.WHITE_PLAYER)
+    #     else:
+    #         value, move = self.min_value(node, logic.BLACK_PLAYER)
+    #     return value, move
+
+    # def max_value(self, node, player):
+    #     if logic.is_game_over(player, node.state):
+    #         return self.utility(node.state, player), None
+    #     v = -math.inf
+    #     best_move = None
+    #     for action in node.untried_moves:
+    #         new_state = self.result(node.state, action, player)
+    #         v2, _ = self.min_value(Node(new_state), self.opponent(player))
+    #         if v2 > v:
+    #             v, best_move = v2, action
+    #     # print(f"Max de player {player}, {node.state}")
+    #     return v, best_move 
+
+    # def min_value(self, node, player):
+    #     if logic.is_game_over(player, node.state):
+    #         return self.utility(node.state, player), None
+    #     v = math.inf
+    #     best_move = None
+    #     for action in node.untried_moves:
+    #         new_state = self.result(node.state, action, player)
+    #         v2, _ = self.max_value(Node(new_state), self.opponent(player))
+    #         if v2 < v:
+    #             v, best_move = v2, action
+    #     # print(f"Min de player {player}, {node.state}")
+    #     return v, best_move
+
     def minimax_decision(self, node):
         if self.player == logic.WHITE_PLAYER:
-            value, move = self.max_value(node, logic.WHITE_PLAYER)
+            value, move = self.max_value(node, logic.WHITE_PLAYER, -math.inf, math.inf)
         else:
-            value, move = self.min_value(node, logic.BLACK_PLAYER)
+            value, move = self.min_value(node, logic.BLACK_PLAYER, -math.inf, math.inf)
         return value, move
 
-    def max_value(self, node, player):
+    def max_value(self, node, player, alpha, beta):
         if logic.is_game_over(player, node.state):
             return self.utility(node.state, player), None
         v = -math.inf
         best_move = None
         for action in node.untried_moves:
-            child_node = Node(self.result(node.state, action, player))
-            v2, _ = self.min_value(child_node, self.opponent(player))
+            new_state = self.result(node.state, action, player)
+            v2, _ = self.min_value(Node(new_state), self.opponent(player), alpha, beta)
             if v2 > v:
                 v, best_move = v2, action
-        print(f"Max de player {player}, {node.state}")
+            if v >= beta:
+                return v, best_move  # Beta
+            alpha = max(alpha, v)
         return v, best_move 
 
-    def min_value(self, node, player):
+    def min_value(self, node, player, alpha, beta):
         if logic.is_game_over(player, node.state):
             return self.utility(node.state, player), None
         v = math.inf
         best_move = None
         for action in node.untried_moves:
-            child_node = Node(self.result(node.state, action, player))
-            v2, _ = self.max_value(child_node, self.opponent(player))
+            new_state = self.result(node.state, action, player)
+            v2, _ = self.max_value(Node(new_state), self.opponent(player), alpha, beta)
             if v2 < v:
                 v, best_move = v2, action
-        print(f"Min de player {player}, {node.state}")
+            if v <= alpha:
+                return v, best_move  # Alpha
+            beta = min(beta, v)
         return v, best_move
 
     def opponent(self, player):
@@ -112,6 +149,7 @@ class MiniMax(PlayerStrat):
 
     def start(self):
         _, best_move = self.minimax_decision(Node(self.root_state))
+        # print(f"Player {self.player}, {best_move}")
         return best_move
 
 str2strat: dict[str, PlayerStrat] = {
