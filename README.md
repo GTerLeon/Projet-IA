@@ -12,7 +12,7 @@ Place tiles to connect your two borders of the board. Play against an AI, implem
 ```
 $ python main.py -h
 
-usage: main.py [-h] [--size SIZE] [--games GAMES] [--no-ui] [--player {human,random,minimax}] [--other {human,random,minimax}]
+usage: main.py [-h] [--size SIZE] [--games GAMES] [--no-ui] [--player {human,random,minimax, minimaxup}] [--other {human,random,minimax, minimaxup}]
 
 Runs a game of Hex.
 
@@ -21,9 +21,9 @@ options:
   --size SIZE           Size of the board (Default: 7)
   --games GAMES         Number of games to play in tournament. Only if no human (default: 5)
   --no-ui               GUI is not displayed. Only if no human.
-  --player {human,random,minimax}
+  --player {human,random,minimax, minimaxup}
                         Strategy for player1 (default: human)
-  --other {human,random,minimax}
+  --other {human,random,minimax, minimaxup}
                         Strategy for player2 (default: random)
 ```
 

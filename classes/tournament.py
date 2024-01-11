@@ -1,6 +1,9 @@
 import os
 import pickle
 import logging
+import csv
+import seaborn as sns
+import matplotlib.pyplot as plt
 from rich import print
 from rich.logging import RichHandler
 
@@ -82,4 +85,27 @@ class Tournament:
         # TODO Design your own evaluation measure!
         # https://pyformat.info/
         log.info("Design your own evaluation measure!")
+        #Writes in score.csv the outcome of the tournament and display heatmap of all scores 
+        percentWin = (scores[0] / self.N_GAMES) * 100
+
+        # Write to CSV
+        with open('score.csv', 'a', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow([self.STRAT[0], self.STRAT[1], self.N_GAMES, percentWin])
+
+        # Read the CSV into a DataFrame
+        df_load = pd.read_csv('score.csv', header=None, names=['strategy1', 'strategy2', 'n_games', 'win_percentage'])
+
+        # Group by strategy1, strategy2 and calculate the mean of the win percentages
+        df = df_load.groupby(['strategy1', 'strategy2']).apply(lambda x: (x['win_percentage'] * x['n_games']).sum() / x['n_games'].sum()).reset_index(name='win_percentage')
+
+        pivot_df = df.pivot('strategy1', 'strategy2', 'win_percentage')
+
+        # Create the heatmap using seaborn
+        plt.figure(figsize=(10, 8))
+        sns.heatmap(pivot_df, annot=True, fmt=".1f", cmap='viridis')
+        plt.title("Heatmap of all scores")
+        plt.show()
+
         print(scores)
+        

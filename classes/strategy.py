@@ -60,6 +60,62 @@ class Random(PlayerStrat):
         return result
     
 class MiniMax(PlayerStrat):
+# Build here the class implementing the MiniMax strategy  
+    def __init__(self, _board_state, player):
+        super().__init__(_board_state, player)
+        self.player=player
+        self.opponent=3-player
+
+    def max_value(self, node, alpha, beta):
+        if logic.is_game_over(self.opponent, node.state):
+            return self.utility(node.state), None
+        v = -math.inf
+        best_move = None
+        for action in node.untried_moves:
+            new_state = self.result(node.state, action, self.player)
+            v2, _ = self.min_value(Node(new_state), alpha, beta)
+            if v2 > v:
+                v, best_move = v2, action
+            if v >= beta:
+                return v, best_move  # Beta
+            alpha = max(alpha, v)
+        return v, best_move 
+
+    def min_value(self, node, alpha, beta):
+        if logic.is_game_over(self.player, node.state):
+            return self.utility(node.state), None
+        v = math.inf
+        best_move = None
+        for action in node.untried_moves:
+            new_state = self.result(node.state, action, self.opponent)
+            v2, _ = self.max_value(Node(new_state), alpha, beta)
+            if v2 < v:
+                v, best_move = v2, action
+            if v <= alpha:
+                return v, best_move  # Alpha
+            beta = min(beta, v)
+        return v, best_move
+    
+    def utility(self, state):
+        winner = logic.is_game_over(self.player, state)
+        if winner is not None:
+            return 1
+        else:
+            return -1
+
+    def result(self, state, action, player):
+    #Create a new state by applying a new action to the current state 
+        new_state = copy.deepcopy(state)
+        new_state[action] = player
+        return new_state
+
+    def start(self):
+        _, best_move = self.max_value(Node(self.root_state), -math.inf, math.inf)
+        return best_move
+
+
+class MiniMaxUp(PlayerStrat):
+#Upgraded version of the minimax algorithm with evaluation function
     def __init__(self, _board_state, player):
         super().__init__(_board_state, player)
         self.player=player
@@ -116,15 +172,8 @@ class MiniMax(PlayerStrat):
 
 
     def utility(self, state, depth):
-        # if (self.player == player):
-        #     # print("je suis dans ce cas ==")
-        #     winner = logic.is_game_over(self.opponent(player), state)
-        # else:
-        #     # print("je suis !=")
-        #     winner = logic.is_game_over(player, state)
         winner1 = logic.is_game_over(self.player, state)
         winner2 = logic.is_game_over(self.opponent, state)
-        # print(f"Winner {winner}, {player}")
         if winner1 is not None:
             return 1
         elif winner2 is not None:
@@ -140,82 +189,12 @@ class MiniMax(PlayerStrat):
 
     def start(self, depth=4):
         _, best_move = self.minimax_decision(Node(self.root_state), depth)
-        # print(f"Player {self.player}, {best_move}")
-        # print(f"Move retourne {best_move}")
-        # if(best_move == None):
-        #     # print("Je suis ici")
-        #     best_move = random.choice(logic.get_possible_moves(self.root_state))
-        # print(f"Move retourne {best_move}")
         return best_move
-    
-
-
-    # def calculate_centrality(self,position, board_size):
-    #     centre = board_size // 2
-    #     x, y = position
-    #     # Calculate distance from center
-    #     distance = max(abs(x - centre), abs(y - centre))
-
-    #     # Lower distance means higher score
-    #     centrality_score = centre - distance
-
-    #     return centrality_score
-    
-    # def check_extends_own_path(self, x, y):
-    #     for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
-    #         adj_x, adj_y = x + dx, y + dy
-    #         if is_valid_position(adj_x, adj_y) and self.root_state[adj_x, adj_y] == self.player:
-    #             return True
-    #     return False
-
-
-    # def check_connects_two_chains(self, x, y):
-    #     return False  
-
-    # def check_blocks_opponent_path(self, x, y):
-    #     for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
-    #         adj_x, adj_y = x + dx, y + dy
-    #         if is_valid_position(adj_x, adj_y) and self.root_state[adj_x, adj_y] == self.opponent:
-    #             return True
-    #     return False
-
-    
-
-
-    # def check_forms_bridge(self, x, y):
-       
-    #     return False  
-
-    
-    # def heuristic_sort(self, action):
-    #     x, y = action  
-    #     score = 0
-
-    #     # Check if the move extends own path
-    #     if self.check_extends_own_path(x, y):
-    #         score += 100
-
-    #     # Check if the move connects two chains
-    #     if self.check_connects_two_chains(x, y):
-    #         score += 80
-
-    #     # Check if the move blocks opponent's path
-    #     if self.check_blocks_opponent_path(x, y):
-    #         score += 90
-
-    #     # Check if the move forms a bridge
-    #     if self.check_forms_bridge(x, y):
-    #         score += 70
-
-    #     board_size = len(self.root_state)
-    #     centrality_score = self.calculate_centrality((x, y), board_size)
-    #     score += centrality_score
-
-    #     return score
-        
+           
 
 str2strat: dict[str, PlayerStrat] = {
         "human": None,
         "random": Random,
-        "minimax": MiniMax
+        "minimax": MiniMax,
+        "minimaxup": MiniMaxUp
 }
