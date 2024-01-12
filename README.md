@@ -2,6 +2,10 @@
 
 Place tiles to connect your two borders of the board. Play against an AI, implement human vs. human game mode or create your own AI strategy in `strategy.py`.
 
+# Modified code
+
+The modified part of the code can be found in strategy.py and tournament.py
+
 ## Dependencies
 
 `pip install -r requirements.txt`
